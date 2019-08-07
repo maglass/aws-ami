@@ -1,0 +1,8 @@
+#!/bin/bash
+
+export AWS_DEFAULT_REGION=ap-northeast-2
+export AWS_REGION=ap-northeast-2
+export AWS_ACCESS_KEY_ID=##
+export AWS_SECRET_ACCESS_KEY=##
+# export VAGRANT_AWS_KEY_PAIR=jin
+# export VAGRANT_SSH_KEY_PATH=./jin.pem
