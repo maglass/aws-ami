@@ -1,0 +1,29 @@
+{
+  "variables": {
+    "datadog_api_key": "{{env `DATADOG_API_KEY`}}"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "ap-northeast-2",
+      "availability_zone": "ap-northeast-2a",
+      "source_ami": "ami-d28a53bc",
+      "instance_type": "c5.2xlarge",
+      "ssh_username": "ubuntu",
+      "ami_name": "hoian-vpc-packer-search {{isotime \"2006-01-02 1504\" | clean_ami_name}}",
+      "ami_description": "hoian searchserver",
+      "ssh_interface": "public_ip",
+      "associate_public_ip_address": true
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "ansible",
+      "playbook_file": "./provisioning/elasticsearch.yml",
+      "host_alias": "searchservers",
+      "extra_arguments": [
+        "--extra-vars", "ansible_python_interpreter=/usr/bin/python3"
+      ]
+    }
+  ]
+}

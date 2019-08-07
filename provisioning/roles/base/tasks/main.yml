@@ -1,0 +1,71 @@
+---
+# 어느 서버든 설치할 인프라 요소
+- name: Set timezone to Seoul
+  become: yes
+  become_user: root
+  become_method: sudo
+  timezone:
+    name: Asia/Seoul
+- name: locale 변경
+  become: yes
+  become_user: root
+  become_method: sudo
+  blockinfile:
+    path: /etc/environment
+    block: |
+      LC_CTYPE=C.UTF-8
+      LC_ALL=C.UTF-8
+- name: Copy Crontab
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: crontab.system
+    dest: /etc/crontab
+    owner: root
+    group: root
+    mode: 0644
+- name: git install
+  become: yes
+  become_user: root
+  become_method: sudo
+  apt:
+    name: git
+    update_cache: yes
+- name: bash 프롬프트 설정
+  blockinfile:
+    path: "/home/ubuntu/.bashrc"
+    marker: "#{mark} DEFAULT PS1 ANSIBLE MANAGED"
+    block: |
+      short_hostname=$(hostname | cut -d '-' -f 1,2)-$(hostname | cut -d '-' -f 4 | cut -c1-3)
+      PS1=`echo $PS1 | sed -r "s/$(echo '\\\h')/\\$short_hostname/g"`
+      export PS1="${PS1} "
+- name: ulimit 설정
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: ulimit
+    dest: /etc/security/limits.conf
+    owner: root
+    group: root
+    mode: 0644
+- name: max open files 설정
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: systemd.conf
+    dest: /etc/systemd/{{ item }}
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - user.conf
+    - system.conf
+- name: json parser 설치
+  become: yes
+  become_user: root
+  become_method: sudo
+  apt:
+    name: jq

@@ -1,0 +1,35 @@
+- name: java install
+  become: yes
+  become_user: root
+  become_method: sudo
+  apt:
+    name: openjdk-8-jdk
+    update_cache: yes
+
+- name: java JAVA_HOME 추가
+  become: yes
+  become_user: root
+  become_method: sudo
+  blockinfile:
+    path: /etc/environment
+    block: |
+      JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+- name: java PATH 추가
+  become: yes
+  become_user: root
+  become_method: sudo
+  blockinfile:
+    path: /etc/profile
+    block: |
+      export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+      export PATH=$PATH:$JAVA_HOME/bin
+
+- name: java cacerts 추가
+  become: yes
+  become_user: root
+  become_method: sudo
+  shell: |
+    ln -sf /etc/ssl/certs/java/cacerts $JAVA_HOME/jre/lib/security/cacerts
+
+

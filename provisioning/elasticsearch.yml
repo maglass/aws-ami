@@ -1,0 +1,12 @@
+---
+- hosts: searchservers
+  remote_user: ubuntu
+  vars:
+    aws:
+      monitoring: True
+      s3_log: False
+  roles:
+    - base
+    - clamav
+    - java8
+    - elasticsearch

@@ -1,0 +1,17 @@
+# temporary
+.DS_Store
+tmp/
+
+# secrets
+.envrc
+
+# vagrant
+.vagrant
+
+# packer
+/provisioning/web.retry
+/provisioning/batch.retry
+/provisioning/control.retry
+
+# pem
+*.pem

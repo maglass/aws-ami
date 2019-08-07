@@ -1,0 +1,119 @@
+# ElasticSearch Install
+- name: elasticsearch import the GPG key
+  become: yes
+  become_user: root
+  become_method: sudo
+  shell: |
+    wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+
+- name: elasticsearch pre-requirements install
+  become: yes
+  become_user: root
+  become_method: sudo
+  apt:
+    name: apt-transport-https
+    update_cache: yes
+
+- name: Save the repository definition to /etc/apt/sources.list.d/elastic-6.x.list
+  become: yes
+  become_user: root
+  become_method: sudo
+  shell: |
+    echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-6.x.list
+
+- name: elasticsearch install
+  become: yes
+  become_user: root
+  become_method: sudo
+  apt:
+    name: elasticsearch=6.7.2
+    update_cache: yes
+
+# Elastic Settings
+- name: make required directory
+  become: yes
+  become_user: root
+  become_method: sudo
+  shell: |
+    mkdir -p /mnt/data/es/data && \
+    mkdir -p /mnt/data/es/logs && \
+    mkdir -p /mnt/backup && \
+    chown -R elasticsearch:elasticsearch /mnt/data && \
+    chown -R elasticsearch:elasticsearch /mnt/backup
+
+- name: elasticsearch 설정 파일 복사
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: elasticsearch.yml
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: elasticsearch
+    mode: 0664
+
+- name: elasticsearch 로그 설정 파일 복사
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: log4j2.properties
+    dest: /etc/elasticsearch/log4j2.properties
+    owner: root
+    group: elasticsearch
+    mode: 0664
+
+- name: elasticsearch java runtime 환경변수들 복사
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: jvm.options
+    dest: /etc/elasticsearch/jvm.options
+    owner: root
+    group: elasticsearch
+    mode: 0664
+
+- name: elasticsearch의 elasticsearch 로그인셸(/bin/false)로 인한 환경변수 복사
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: elasticsearch
+    dest: /etc/default/elasticsearch
+    owner: root
+    group: elasticsearch
+    mode: 0664
+
+- name: elasticsearch, service에 대한 설정변경
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: elasticsearch.service
+    dest: /usr/lib/systemd/system/elasticsearch.service
+    owner: root
+    group: root
+    mode: 0664
+
+# ElasitcSearch Plugin Install
+- name: elastic search plugin install
+  become: yes
+  become_user: root
+  become_method: sudo
+  shell: |
+    /usr/share/elasticsearch/bin/elasticsearch-plugin install analysis-nori --verbose
+
+- name: systemctl 변경한 서비스 데몬 설정파일 반영
+  become: yes
+  become_user: root
+  become_method: sudo
+  shell: |
+    /bin/systemctl daemon-reload
+
+- name: elasticsearch service daemon 재 실행
+  become: yes
+  become_user: root
+  become_method: sudo
+  shell: |
+    /bin/systemctl restart elasticsearch.service

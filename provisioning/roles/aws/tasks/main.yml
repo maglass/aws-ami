@@ -1,0 +1,16 @@
+---
+- name: AWS CLI 필요 패키지 설치
+  become: yes
+  become_user: root
+  become_method: sudo
+  apt:
+    name: python-dev
+- name: PIP 설치
+  become: yes
+  become_user: root
+  become_method: sudo
+  apt:
+    name: python-pip
+- name: AWS CLI 설치
+  command: 'pip install awscli --user'
+

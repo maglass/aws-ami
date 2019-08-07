@@ -1,0 +1,28 @@
+---
+- name: clamav 설치
+  become: yes
+  become_user: root
+  become_method: sudo
+  apt:
+    name: clamav
+    update_cache: yes
+- name: clamav 실행 스크립트 복사
+  become: yes
+  become_user: root
+  become_method: sudo
+  copy:
+    src: clamav_check.sh
+    dest: /root/clamav_check.sh
+    owner: root
+    group: root
+    mode: 0700
+- name: clamav cron 등록
+  become: yes
+  become_user: root
+  become_method: sudo
+  cron:
+    name: clamav virus check
+    user: root
+    hour: 4
+    minute: 0
+    job: /root/clamav_check.sh
